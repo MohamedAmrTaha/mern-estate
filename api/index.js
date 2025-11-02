@@ -13,6 +13,15 @@ mongoose.connect(process.env.MONGO).then(() => {
   console.error('MongoDB connection error:', err);
 });
 app.use('/api/auth', authRouter);
+app.use((err, req, res, next) => {
+  const statusCode = err.status || 500;
+  const message = err.message || 'Internal Server Error';
+  res.status(statusCode).json({ 
+    success: false, 
+    statusCode, 
+    message
+   });
+});
 
 app.listen(3000, () => {
   console.log('API server is running on http://localhost:3000');
