@@ -23,7 +23,7 @@ export default function Signin() {
           body: JSON.stringify(formData)
         });
         const data = await res.json();
-        if(res.status !== 200){
+        if(data.success === false){
           setLoading(false);
           setError(data.message);
           return;
