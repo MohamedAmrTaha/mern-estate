@@ -36,3 +36,28 @@ export const signin = async (req, res, next) => {
   }
   
 }
+
+export const google = async (req, res, next) => {
+  const { name, email, photo } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      res.cookie('access_token', token, { httpOnly: true }).status(200).json(user);
+    } else {
+      const generatedPassword = Math.random().toString(36).slice(-8);
+      const hashedPassword = bcrypt.hashSync(generatedPassword, 8);
+      const newUser = new User({
+        username: name,
+        email,
+        password: hashedPassword,
+        photo
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      res.cookie('access_token', token, { httpOnly: true }).status(200).json(newUser);
+    }
+  } catch (error) {
+    next(error);
+  }
+}
